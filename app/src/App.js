@@ -5,14 +5,42 @@ import React from 'react';
 
 const transactionModel = [
   {
-    "transaction_id":"0123",
+    "transaction_id":"",
     "amount": null
+  },
+  {
+    "transaction_id":"12345",
+    "amount": 52.00,
+    "currency":"US",
+    "sender_number":"72109xx741",
+    "recipient_id":10002314,
+    "timestamp":"1990-01-01T01:01:01Z",
+    "client_ref_id":2314,
+    "state":1
+  },
+  {
+    "transaction_id":"345",
+    "amount": 100.00,
+    "currency":"US",
+    "sender_number":"72109xx741",
+    "recipient_id":10002314,
+    "timestamp":"1990-01-01T01:01:01Z",
+    "client_ref_id":2314,
+    "state":1
+  },
+  {
+    "transaction_id":"45",
+    "amount": 105.00,
+    "currency":"US",
+    "sender_number":"72109xx741",
+    "recipient_id":10002314,
+    "timestamp":"1990-01-01T01:01:01Z",
+    "client_ref_id":314,
+    "state":1
   },
   {
     "transaction_id":"123",
     "amount": 200.00,
-    "fee":66.25,
-    "service_tax":8.25,
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
@@ -23,8 +51,6 @@ const transactionModel = [
   {
     "transaction_id":"456",
     "amount": 120.00,
-    "fee":66.25,
-    "service_tax":8.25,
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
@@ -35,8 +61,6 @@ const transactionModel = [
   {
     "transaction_id":"123456",
     "amount": 5000.00,
-    "fee":66.25,
-    "service_tax":8.25,
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
@@ -48,9 +72,15 @@ const transactionModel = [
 
 
 
-const RewardsButton = (props) => {
+const RewardsButton = ({amount, pointsTotal, setPointsTotal}) => {
 
-  let [pointsTotal, setPointsTotal] = React.useState(0);
+  // let [pointsTotal, setPointsTotal] = React.useState(0);
+
+  // React.useEffect(() => {
+  //   if (pointsTotal !== 0 && amount !== 0) {
+  //     setPointsTotal(0);
+  //   }
+  // })
 
   const calculatePoints = (purchaseTotal) => {
 
@@ -67,48 +97,39 @@ const RewardsButton = (props) => {
   
   return (
     <>
-      <button onClick={() => calculatePoints(props.amount)}>Calculate Rewards</button>
-      <p className="rewards-amount">{pointsTotal}</p>
+      <button  style={{flex:'1 0 30%'}} onClick={() => calculatePoints(amount)}>Calculate Rewards</button>
+      <p style={{flex:'1 0 100%',textAlign:'center'}}>Thank you for your purchase.<br />You have <span className="rewards-amount">{pointsTotal}</span> reward points.</p>
     </>
   )
 }
 
 function App() {
 
-  // React.useEffect(() => {
-  //   console.log('App component loaded')
-  //   console.log(transSelect.current.value);
-  // },[])
+  let [pointsTotal, setPointsTotal] = React.useState(0);
 
   React.useEffect(() => {
-    const getBooks = async () => {
+    const getTransactions = async () => {
       await fetch(
-        'https://openlibrary.org/api/books?bibkeys=ISBN:0201558025,LCCN:93005405&format=json'
-        // ,
-        // {
-        //   headers : { 
-        //     'Content-Type': 'application/json',
-        //     'Accept': 'application/json'
-        //    }
-        // }
+        './api/transactions?months=3'
+        ,
+        {
+          headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+           }
+        }
       ).then((response) => {
         try {
-          // const json = JSON.parse(response);
           return response.json();
         } catch(err) {
           console.log(err.message);
         }
-        
-        // return response.text();
-        // return JSON.parse(response);
-        // return response.json();
       }).then(
-        (data) => console.log(data)
-
+        (data) => data = transactionModel
       );    
     }
 
-    getBooks();
+    getTransactions();
 
   }, [])
 
@@ -122,6 +143,16 @@ function App() {
     e.preventDefault();
     setTransactionValue(e.target.value);
   }, [setTransactionValue]);
+
+  const showInfo = () => {
+    if (transSelect.current === null) {
+      return 'Information'
+    } else {
+      // console.log(transSelect.current);
+      // debugger;
+      return `$${transactionModel[transSelect.current.selectedIndex].amount}`
+    }
+  }
 
   return (
     <div className="App">
@@ -144,19 +175,22 @@ function App() {
         <h1>Reward Points</h1>
         
         <div className="reward-form">
-          <form>
+          <form style={{flex:'1 0 30%'}}>
             <p>
-              <select value={(transSelect.current === null) ? transactionValue : parseInt(transSelect.current.value)} ref={transSelect} onChange={handleChange}>
-                {transactionModel.map((transactionObject) => (<option key={transactionObject.transaction_id} value={transactionObject.amount}>{transactionObject.amount}</option>))}
+              Pick a Transaction ID
+              <select value={(transSelect.current === null) ? transactionValue : parseInt(transSelect.current.value)} ref={transSelect} onChange={handleChange} onClick={() => setPointsTotal(0)}>
+                {transactionModel.map((transactionObject) => (<option key={transactionObject.transaction_id} value={transactionObject.amount}>{transactionObject.transaction_id}</option>))}
               </select>
             </p>
             
           </form>
-          
-          
-          <RewardsButton amount={transactionValue} />
-          <div>Info</div>
 
+          <div style={{alignSelf:'center',flex:'1 0 40%'}}>
+            {showInfo()}
+          </div>
+
+          <RewardsButton amount={transactionValue} pointsTotal={pointsTotal} setPointsTotal={setPointsTotal} />
+          
         </div>
       </section>
     </div>
