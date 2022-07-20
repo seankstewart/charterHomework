@@ -84,6 +84,11 @@ h1 {
 .reward-select {
   display: block;
   font-size: 1em;
+  width: 100%;
+  font-size: 1.5em;
+  height: 2.5rem;
+  border: none;
+  outline: none;
 }
 
 .rewards-info {
@@ -103,3 +108,31 @@ h1 {
   font-size: 4em;
   font-weight: 700;
 }
+
+
+
+
+
+.select-wrap {
+  border: 1px solid #777;
+  border-radius: 4px;
+  padding: 0 5px;
+  width:200px;
+  background-color:#fff;
+  position:relative;
+}
+.select-wrap label{
+  font-size:8px;
+  text-transform: uppercase;
+  color: #777;
+  padding: 0 8px;  
+  position: absolute;
+  top:6px;
+}
+
+/* select{
+  background-color: #fff;
+  border:0px;
+  height:50px;
+  
+} */
