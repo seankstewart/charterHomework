@@ -14,7 +14,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-01-01T01:01:01Z",
     "client_ref_id":2314,
     "state":1
   },
@@ -24,7 +24,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-02-10T01:01:01Z",
     "client_ref_id":2314,
     "state":1
   },
@@ -34,7 +34,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-02-12T01:01:01Z",
     "client_ref_id":314,
     "state":1
   },
@@ -44,7 +44,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-01-30T01:01:01Z",
     "client_ref_id":2314,
     "state":1
   },
@@ -54,7 +54,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-03-16T01:01:01Z",
     "client_ref_id":2314,
     "state":1
   },
@@ -64,7 +64,7 @@ const transactionModel = [
     "currency":"US",
     "sender_number":"72109xx741",
     "recipient_id":10002314,
-    "timestamp":"1990-01-01T01:01:01Z",
+    "timestamp":"2022-03-01T01:01:01Z",
     "client_ref_id":2314,
     "state":1
   }
@@ -72,36 +72,25 @@ const transactionModel = [
 
 
 
-const RewardsButton = ({amount, pointsTotal, setPointsTotal}) => {
-
-  // let [pointsTotal, setPointsTotal] = React.useState(0);
-
-  // React.useEffect(() => {
-  //   if (pointsTotal !== 0 && amount !== 0) {
-  //     setPointsTotal(0);
-  //   }
-  // })
-
-  const calculatePoints = (purchaseTotal) => {
-
-    // let pointsTotal = 0;
-    if (purchaseTotal > 100) {
-      setPointsTotal(((purchaseTotal - 100) * 2) + 50)
-      // pointsTotal = ((purchaseTotal - 100) * 2) + 50;
-    } else if (purchaseTotal > 50) {
-      setPointsTotal(((purchaseTotal - 50) * 1))
-      // pointsTotal = (pointsTotal = ((purchaseTotal - 50) * 1)
-    }
-    return pointsTotal;
-  }
-  
+const TransactionDataList = (props) => {
   return (
-    <>
-      <button  style={{flex:'1 0 30%'}} onClick={() => calculatePoints(amount)}>Calculate Rewards</button>
-      <p style={{flex:'1 0 100%',textAlign:'center'}}>Thank you for your purchase.<br />You have <span className="rewards-amount">{pointsTotal}</span> reward points.</p>
-    </>
+    <section className="rewards-info">
+      <div>
+        <ul>
+          <li>TransactionID: {transactionModel[props.transSelect.current.selectedIndex].transaction_id}</li>
+          <li>Amount: <b>${transactionModel[props.transSelect.current.selectedIndex].amount}</b></li>
+          <li>Timestamp: {transactionModel[props.transSelect.current.selectedIndex].timestamp}</li>
+          <li>ClientRef: {transactionModel[props.transSelect.current.selectedIndex].client_ref_id}</li>
+        </ul>
+      </div>
+      <div>
+        Rewards Earned:<br />
+        <span className="rewards-amount">{props.pointsTotal}</span>
+      </div>
+    </section>
   )
-}
+} 
+
 
 function App() {
 
@@ -138,21 +127,30 @@ function App() {
   const transSelect = React.useRef(null);
   const [transactionValue, setTransactionValue] = React.useState("0")
 
+  const showInfo = () => {
+    if (transSelect.current === null) {
+      return null
+    } else {
+      return <TransactionDataList transSelect={transSelect} pointsTotal={pointsTotal} />
+    }
+  }
+
+  const calculatePoints = React.useCallback((purchaseTotal) => {
+
+    if (purchaseTotal > 100) {
+      setPointsTotal(((purchaseTotal - 100) * 2) + 50)
+    } else if (purchaseTotal > 50) {
+      setPointsTotal(((purchaseTotal - 50) * 1))
+    }
+    return pointsTotal;
+  }, [pointsTotal])
+
   const handleChange = React.useCallback((e) => {
     // setTransactionValue(e.target.value);
     e.preventDefault();
+    calculatePoints(e.target.value);
     setTransactionValue(e.target.value);
-  }, [setTransactionValue]);
-
-  const showInfo = () => {
-    if (transSelect.current === null) {
-      return 'Information'
-    } else {
-      // console.log(transSelect.current);
-      // debugger;
-      return `$${transactionModel[transSelect.current.selectedIndex].amount}`
-    }
-  }
+  }, [calculatePoints, setTransactionValue]);
 
   return (
     <div className="App">
@@ -173,25 +171,25 @@ function App() {
 
       <section className="reward-points">
         <h1>Reward Points</h1>
-        
-        <div className="reward-form">
-          <form style={{flex:'1 0 30%'}}>
-            <p>
-              Pick a Transaction ID
-              <select value={(transSelect.current === null) ? transactionValue : parseInt(transSelect.current.value)} ref={transSelect} onChange={handleChange} onClick={() => setPointsTotal(0)}>
-                {transactionModel.map((transactionObject) => (<option key={transactionObject.transaction_id} value={transactionObject.amount}>{transactionObject.transaction_id}</option>))}
-              </select>
-            </p>
-            
-          </form>
-
-          <div style={{alignSelf:'center',flex:'1 0 40%'}}>
-            {showInfo()}
-          </div>
-
-          <RewardsButton amount={transactionValue} pointsTotal={pointsTotal} setPointsTotal={setPointsTotal} />
+        <p style={{marginTop:0}}>Choose a Transaction ID below to view transaction information and reward points</p>
+        <form className="reward-form">
           
-        </div>
+            <select value={(transSelect.current === null) ? transactionValue : parseFloat(transSelect.current.value)} ref={transSelect} onChange={handleChange} onClick={() => setPointsTotal(0)} className="reward-select">
+              {transactionModel.map((transactionObject) => (<option key={transactionObject.transaction_id} value={transactionObject.amount}>{transactionObject.transaction_id}</option>))}
+            </select>
+          
+          
+        </form>
+        {
+          (pointsTotal === 0) ? 
+            null 
+          :
+          
+            <>
+              {showInfo()}
+            </>
+          
+        }
       </section>
     </div>
   );
